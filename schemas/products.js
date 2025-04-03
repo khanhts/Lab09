@@ -1,4 +1,5 @@
 let mongoose = require('mongoose');
+let slugify = require('slugify');
 let productSchema = mongoose.Schema({
     name:{
         type:String,
@@ -32,9 +33,20 @@ let productSchema = mongoose.Schema({
     isDeleted:{
         type:Boolean,
         default:false
+    },
+    slug: {
+        type: String,
+        unique: true
     }
 },{
     timestamps:true
 })
+
+productSchema.pre('save', function(next) {
+    if (this.isModified('name') || this.isNew) {
+        this.slug = slugify(this.name, { lower: true, strict: true });
+    }
+    next();
+});
 module.exports = mongoose.model('product',productSchema)
 // products

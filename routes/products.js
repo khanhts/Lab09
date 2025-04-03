@@ -85,4 +85,28 @@ router.delete('/:id', async function(req, res, next) {
   }
 });
 
+router.get('/:slugcategory/:slugproduct', async function(req, res, next) {
+  try {
+      const { slugcategory, slugproduct } = req.params;
+      
+      const category = await categoryModel.findOne({ slug: slugcategory });
+      if (!category) {
+          return res.status(404).json({ success: false, message: 'Category not found' });
+      }
+
+      const product = await productModel.findOne({ slug: slugproduct, category: category._id }).populate('category');
+      if (!product) {
+          return res.status(404).json({ success: false, message: 'Product not found' });
+      }
+      
+      res.status(200).json({
+          success: true,
+          category: category,
+          product: product
+      });
+  } catch (error) {
+      next(error);
+  }
+});
+
 module.exports = router;
